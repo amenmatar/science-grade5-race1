@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة الهروب من المختبر: أسرار خصائص المادة — الصف الخامس الأساسي</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <!-- مكتبة القصاصات الاحتفالية Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    }
+    .card-glass {
+      background: rgba(30, 41, 59, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake-anim {
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      50% { box-shadow: 0 0 20px 6px rgba(245, 158, 11, 0.7); }
+    }
+    .glow-active {
+      animation: pulseGlow 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- شريط العنوان العلوي (الترويسة) -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-amber-500/30 shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- اسم المدرسة والشعار في الأعلى بجانب بعضهما، وأسفلها الصف والمبحث -->
+      <div class="flex items-center gap-3">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAsACwBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" alt="شعار المدرسة" class="w-12 h-12 rounded-full border-2 border-amber-400 object-cover shadow" />
+        <div class="text-right">
+          <h1 class="text-sm font-extrabold text-amber-400 leading-tight">مدرسة ذكور طمون الأساسية العليا</h1>
+          <p class="text-[11px] text-slate-300 font-semibold">الصف الخامس الأساسي، العلوم والحياة</p>
+        </div>
+      </div>
+
+      <!-- أزرار مؤشرات الأقفال -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <span id="badgeLock1" class="px-2 py-0.5 rounded-lg text-[11px] font-bold border border-amber-400/50 bg-amber-500/20 text-amber-300">🔒 قفل 1</span>
+        <span id="badgeLock2" class="px-2 py-0.5 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-slate-400">🔒 قفل 2</span>
+        <span id="badgeLock3" class="px-2 py-0.5 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-slate-400">🔒 قفل 3</span>
+        <span id="badgeLock4" class="px-2 py-0.5 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-slate-400">🔒 قفل 4</span>
+      </div>
+
+      <!-- عداد النقاط -->
+      <div class="px-3 py-1 rounded-xl bg-slate-800 border border-amber-500/40 flex items-center gap-2">
+        <span class="text-xs text-slate-300">النقاط:</span>
+        <span id="hudScore" class="text-sm font-extrabold text-amber-400">0</span>
+        <span class="text-xs text-slate-400">/ 400</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- محتوى اللعبة -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- شاشة الترحيب وإدخال اسم الطالب -->
+    <section id="viewIntro" class="card-glass rounded-2xl p-6 sm:p-10 text-center space-y-5 shadow-2xl">
+      <div class="text-5xl">🧪⚡</div>
+      <h2 class="text-2xl sm:text-3xl font-black text-amber-400">تحدي الهروب الكبير: الوحدة الثانية (خصائص المادة)</h2>
+      <p class="text-slate-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+        أهلاً بك يا بطل طمون! أُغلق المختبر بـ 4 أقفال، وكل قفل يحتاج اجتياز <b>10 أسئلة علمية قوية</b> لتفكيكه والحصول على وسام التميز والمكافأة الصفية.
+      </p>
+      
+      <div class="max-w-xs mx-auto space-y-2">
+        <label for="studentNameInput" class="block text-xs font-bold text-amber-300 text-right">أدخل اسمك الرباعي لبدء التحدي:</label>
+        <input type="text" id="studentNameInput" placeholder="مثال: أحمد محمد طوباسي" class="w-full p-3 rounded-xl bg-slate-900 border border-amber-500/50 text-white text-sm focus:outline-none focus:border-amber-400 text-center font-bold" />
+      </div>
+
+      <button type="button" onclick="startGame()" class="px-8 py-3.5 rounded-xl gold-gradient text-slate-950 font-black text-base shadow-xl hover:brightness-110 transition glow-active cursor-pointer">
+        ابدأ التحدي الآن 🚀
+      </button>
+    </section>
+
+    <!-- صندوق السؤال التفاعلي -->
+    <section id="viewQuiz" class="hidden card-glass rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-700 pb-3 gap-2">
+        <div>
+          <span id="txtLockTitle" class="text-xs sm:text-sm font-bold text-amber-400 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30">القفل الأول: حالات المادة</span>
+        </div>
+        <div class="text-xs font-bold text-slate-300 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+          السؤال <span id="txtQIndex" class="text-amber-400 font-black">1</span> من 10
+        </div>
+      </div>
+
+      <!-- نص السؤال -->
+      <div class="py-2">
+        <h3 id="txtQuestionText" class="text-base sm:text-lg font-bold text-white leading-relaxed">نص السؤال هنا...</h3>
+      </div>
+
+      <!-- خيارات الإجابة -->
+      <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        <!-- توليد الأزرار برمجياً -->
+      </div>
+    </section>
+
+    <!-- شاشة الفوز الكبرى والمكافأة والشهادة مع شعار المدرسة -->
+    <section id="viewVictory" class="hidden card-glass rounded-2xl p-8 text-center space-y-6 shadow-2xl">
+      <div class="text-6xl">🏆🎖️</div>
+      <h2 class="text-2xl sm:text-3xl font-black text-amber-400">مبارك لك الهروب والفوز بالمكافأة الكبرى!</h2>
+      <p class="text-slate-300">أثبتّ تفوقك المطلق في مبحث العلوم والحياة - الصف الخامس الأساسي.</p>
+      
+      <!-- شهادة التقدير والمكافأة الرسمية -->
+      <div class="p-6 bg-slate-900 border-2 border-amber-500/80 rounded-2xl space-y-4 max-w-lg mx-auto text-right shadow-2xl relative">
+        
+        <!-- شعار المدرسة واسمها في ترويسة الشهادة -->
+        <div class="flex items-center justify-center gap-3 border-b border-slate-800 pb-3">
+          <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAAsACwBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" alt="شعار المدرسة" class="w-14 h-14 rounded-full border-2 border-amber-400 object-cover shadow" />
+          <div class="text-right leading-snug">
+            <p class="text-[11px] text-amber-400 font-bold">دولة فلسطين • وزارة التربية والتعليم العالي</p>
+            <p class="text-[10px] text-slate-300">مديرية التربية والتعليم / طوباس</p>
+            <p class="text-xs font-extrabold text-white">مدرسة ذكور طمون الأساسية العليا</p>
+          </div>
+        </div>
+        
+        <div class="text-center space-y-2 py-1">
+          <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-bold">وسام عالم العلوم التكنولوجي 🥇</span>
+          <p class="text-sm text-slate-200">تمنح هذه الشهادة والمكافأة للطالب المبدع:</p>
+          <p id="displayStudentName" class="text-xl font-black text-amber-400 underline decoration-amber-500/50">طالب متميز</p>
+          <p class="text-xs text-slate-300 leading-relaxed pt-1">
+            من الصف <b>الخامس الأساسي</b> لاجتيازه الأقفال الأربعة بنجاح وحصوله على الدرجة الكاملة <b class="text-amber-300 font-extrabold">(400 / 400)</b> في الوحدة الثانية (خصائص المادة).
+          </p>
+        </div>
+
+        <!-- بطاقة المكافأة الصفية -->
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center space-y-1">
+          <p class="text-xs font-bold text-amber-400">🎁 بطاقة المكافأة الصفية الخاصة:</p>
+          <p class="text-[11px] text-slate-200">يحق لك إبراز هذه الشاشة لمعلمك <b>أ. أمين عبدالرازق</b> للحصول على <b>+2 علامات إضافية</b> ولقب <b>"عالم العلوم الأسبوعي"</b> في الصف!</p>
+        </div>
+
+        <div class="flex justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+          <span>المعلم: أ. أمين عبدالرازق</span>
+          <span>المبحث: العلوم والحياة</span>
+        </div>
+      </div>
+
+      <div class="flex justify-center gap-3 pt-2">
+        <button onclick="window.print()" class="px-6 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs shadow transition cursor-pointer">
+          🖨️ طباعة الشهادة والمكافأة
+        </button>
+        <button onclick="location.reload()" class="px-6 py-2.5 rounded-xl gold-gradient text-slate-950 font-bold text-xs shadow transition cursor-pointer">
+          🔄 إعادة اللعبة
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+    دولة فلسطين • وزارة التربية والتعليم العالي • مديرية طوباس • مدرسة ذكور طمون الأساسية العليا
+  </footer>
+
+  <script>
+    const locksData = [
+      {
+        lockName: "القفل الأول: حالات المادة وخصائصها",
+        questions: [
+          { q: "ما هي المادة؟", options: ["كل ما يشغل حيزاً وله كتلة", "الفراغ المحيط بنا فقط", "الطاقة الحرارية فقط", "الضوء الصادر عن الشمس"], answer: 0 },
+          { q: "ما الحالة التي لها شكل ثابت وحجم ثابت؟", options: ["الحالة السائلة", "الحالة الصلبة", "الحالة الغازية", "البلازما"], answer: 1 },
+          { q: "أي من المواد التالية تُعتبر مادة صلبة غير مرنة؟", options: ["الوسادة الإسفنجية", "المطاط", "الزجاج", "الكرة المطاطية"], answer: 2 },
+          { q: "المادة التي تتخذ شكل الإناء وتأخذ حجماً ثابتاً هي:", options: ["الغازية", "الصلبة", "السائلة", "المتبخرة"], answer: 2 },
+          { q: "لماذا تتدفق السوائل بسهولة؟", options: ["لأن مسافاتها بين الجسيمات واسعة جداً", "لأن جسيماتها مترابطة بقوة هائلة", "لأن جسيماتها قادرة على الحركة والانزلاق فوق بعضها", "لأنها تفقد كتلتها بسهولة"], answer: 2 },
+          { q: "الحالة التي ليس لها شكل ثابت ولا حجم ثابت وتنتشر لملء أي وعاء هي:", options: ["الصلبة", "السائلة", "الغازية", "المحلول"], answer: 2 },
+          { q: "من أمثلة المواد الصلبة المرنة:", options: ["قطعة حديد", "المطاط والإسفنج", "قطعة زجاج", "صخرة صلبة"], answer: 1 },
+          { q: "ما الذي يميز الجسيمات في الحالة الصلبة؟", options: ["متباعدة جداً وتتحرك بحرية", "متقاربة جداً وتهتز في مكانها", "تتحرك بسرعة عشوائية", "لا توجد بينها قوى تجاذب"], answer: 1 },
+          { q: "أي من الآتي يعتبر غازاً يملأ البالونات ويرتفع؟", options: ["الأكسجين الثقيل", "الهيليوم", "الماء السائل", "الحديد"], answer: 1 },
+          { q: "خصائص المادة التي يمكن ملاحظتها أو قياسها دون تغيير تركيبها الأصلي تسمى:", options: ["خصائص كيميائية", "خصائص فيزيائية", "خصائص الذوبان", "خصائص التفاعل"], answer: 1 }
+        ]
+      },
+      {
+        lockName: "القفل الثاني: المخاليط والسبائك",
+        questions: [
+          { q: "ما هو المخلوط؟", options: ["مادة ناتجة من اتحاد مادتين أو أكثر بنسب ثابتة", "مزيج يضم مادتين أو أكثر دون أن تتحدث كيميائياً", "مادة واحدة نقية تماماً", "ناتج تفاعل كيميائي نهائي"], answer: 1 },
+          { q: "مخلوط مكون من مادتين أو أكثر وتتوزع مكوناته بانتظام ولا يمكن تمييزها بالعين:", options: ["مخلوط غير متجانس", "مخلوط متجانس (محلول)", "مخلوط صلب مع صلب", "مخلوط ترشيح"], answer: 1 },
+          { q: "أي مما يلي يُعد مثالاً على محلول (مخلوط متجانس)؟", options: ["الماء والزيت", "السكر المذاب في الماء", "حصى ورمل", "رمل وبرادة حديد"], answer: 1 },
+          { q: "مخلوط لا تتوزع فيه المكونات بانتظام ويمكن تمييز مواده:", options: ["مخلوط متجانس", "محلول سكري", "مخلوط غير متجانس", "سبيكة الذهب"], answer: 2 },
+          { q: "المخلوط غير المتجانس من الأمثلة عليه:", options: ["الملح والماء", "الماء والزيت", "الهواء الجوي النقي", "الشاي المذاب فيه سكر"], answer: 1 },
+          { q: "ما هي السبيكة؟", options: ["محلول مكون من فلز ومواد أخرى (غالباً فلزات) لزيادة صلابتها", "مادة غير نقية تتفكك بالماء", "نوع من أنواع الغازات", "صخرة بركانية طبيعية"], answer: 0 },
+          { q: "من أمثلة السبائك المستخدمة في الصناعة والهندسة:", options: ["سبيكة الفولاذ (الصلب)", "مخلوط الرمل والماء", "الماء المقطر", "السكر الخالص"], answer: 0 },
+          { q: "المذاب في محلول الماء والملح هو:", options: ["الماء", "الملح", "الوعاء الزجاجي", "الهواء"], answer: 1 },
+          { q: "المذيب الغالب في المحاليل المائية هو:", options: ["الملح", "الزيت", "الماء", "الخل"], answer: 2 },
+          { q: "عندما يذوب السكر تماماً في الماء، فإن المخلوط يكون:", options: ["غير متجانس", "متجانس (محلول)", "مادة صلبة نقية", "مفصول تلقائياً"], answer: 1 }
+        ]
+      },
+      {
+        lockName: "القفل الثالث: طرائق فصل المواد",
+        questions: [
+          { q: "ما الطريقة الأنسب لفصل رمل مختلط بالماء؟", options: ["التبخير", "الترشيح", "الشم", "الإنصهار"], answer: 1 },
+          { q: "طريقة تُستخدم لفصل مادة صلبة مذابة في سائل (مثل الملح عن الماء):", options: ["الترويق", "التبخير", "التحريك", "المغناطيس"], answer: 1 },
+          { q: "عملية ترك المخلوط غير المتجانس فترة لترسب المواد الصلبة الثقيلة في القاع تسمى:", options: ["الترويق", "التبخير", "الترشيح", "الإنصهار"], answer: 0 },
+          { q: "كيف نفصل برادة الحديد المختلطة بالرمل؟", options: ["باستخدام المغناطيس", "بالتبخير الحراري", "بالترشيح الورقي", "بالغليان السريع"], answer: 0 },
+          { q: "أداة تُستخدم في الترشيح لحجز الدقائق الصلبة العالقة:", options: ["ورقة الترشيح والقمع", "الملعقة الخشبية", "الميزان الحساس", "المخبار المدرج"], answer: 0 },
+          { q: "عند تبخير محلول ملحي بالكامل، ما الذي يتبقى في الوعاء؟", options: ["بخار الماء فقط", "الملح الصلب", "لا شيء", "زيت"], answer: 1 },
+          { q: "أي من طرائق الفصل التالية تعتمد على اختلاف الكثافة؟", options: ["الترويق وفصل السوائل غير الممتزجة", "التبخير", "المغناطيس", "الترشيح"], answer: 0 },
+          { q: "لفصل زيت عن الماء، نستخدم:", options: ["أنبوب الفصل أو القمع الخاص", "ورقة ترشيح", "لهب الحرق", "المغناطيس"], answer: 0 },
+          { q: "عملية تحويل السائل إلى بخار بالتسخين تسمى:", options: ["تكاثف", "تبخير", "تجمد", "انصهار"], answer: 1 },
+          { q: "عملية الفصل التي تفيد في الحصول على الماء النقي من مياه البحر الملاحية:", options: ["التبخير والتكاثف (التقطير)", "الترشيح فقط", "الترويق فقط", "المغناطيس"], answer: 0 }
+        ]
+      },
+      {
+        lockName: "القفل الرابع: التغيرات الفيزيائية والكيميائية",
+        questions: [
+          { q: "ما هو التغير الفيزيائي؟", options: ["تغير في شكل المادة أو حالتها دون تغيير تركيبها الداخلي", "تغير ينتج عنه مادة جديدة كلياً", "تفاعل يحترق فيه الوقود", "صدأ وتآكل الفلزات"], answer: 0 },
+          { q: "أي مما يلي يُعد تغيراً فيزيائياً؟", options: ["احتراق ورقة", "صدأ مسمار حديد", "انصهار الجليد", "قلي بيضة"], answer: 2 },
+          { q: "ما هو التغير الكيميائي؟", options: ["تغير ينتج عنه مواد جديدة تختلف في خصائصها عن الأصلية", "تغير شكل القطعة فقط", "ذوبان السكر في الماء", "انصهار الشمع"], answer: 0 },
+          { q: "أي العمليات التالية تُعتبر تغيراً كيميائياً؟", options: ["تقطيع الخشب", "سلق البيض أو قليه", "تبخر الماء", "انكسار الزجاج"], answer: 1 },
+          { q: "صدأ الحديد يعتبر:", options: ["تغيراً فيزيائياً", "تغيراً كيميائياً", "طريقة فصل", "مخلوطاً متجانساً"], answer: 1 },
+          { q: "هل يمكن استرجاع المادة الأصلية بسهولة بعد التغير الفيزيائي؟", options: ["نعم، غالباً", "لا أبداً", "فقط بالتفاعل الكيميائي", "لا يمكن بأي شكل"], answer: 0 },
+          { q: "من دلائل حدوث التغير الكيميائي:", options: ["تغير اللون، تصاعد غاز، أو انبعاث حرارة", "تغير الحجم فقط", "تغير المكان", "بقاء المادة كما هي"], answer: 0 },
+          { q: "طحن حبوب القمح إلى دقيق يعتبر تغيراً:", options: ["كيميائياً", "فيزيائياً", "حيوياً", "ذوبان"], answer: 1 },
+          { q: "تعفن الفاكهة يعتبر تغيراً:", options: ["فيزيائياً", "كيميائياً", "شكلياً", "انصهارياً"], answer: 1 },
+          { q: "ذوبان السكر في الماء يُصنف على أنه:", options: ["تغير كيميائي لإنتاج مادة جديدة", "تغير فيزيائي يمكن عكسه بالتبخير", "تفاعل احتراق", "تغير إشعاعي"], answer: 1 }
+        ]
+      }
+    ];
+
+    let currentLockIndex = 0;
+    let currentQIndex = 0;
+    let score = 0;
+    let studentName = "";
+
+    function startGame() {
+      const nameVal = document.getElementById('studentNameInput').value.trim();
+      if (!nameVal) {
+        alert("الرجاء كتابة اسمك الرباعي أولاً للانطلاق في التحدي والمنافسة على المكافأة الصفية!");
+        return;
+      }
+      studentName = nameVal;
+      document.getElementById('viewIntro').classList.add('hidden');
+      document.getElementById('viewQuiz').classList.remove('hidden');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const lock = locksData[currentLockIndex];
+      const qObj = lock.questions[currentQIndex];
+
+      document.getElementById('txtLockTitle').innerText = lock.lockName;
+      document.getElementById('txtQIndex').innerText = currentQIndex + 1;
+      document.getElementById('txtQuestionText').innerText = qObj.q;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+      qObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "p-3.5 bg-slate-800 hover:bg-slate-700 text-right rounded-xl border border-slate-700 font-bold text-xs sm:text-sm transition shadow cursor-pointer text-white";
+        btn.innerText = opt;
+        btn.onclick = function() { handleAnswer(idx, qObj.answer); };
+        container.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIdx, correctIdx) {
+      const quizView = document.getElementById('viewQuiz');
+      if (selectedIdx === correctIdx) {
+        score += 10;
+        document.getElementById('hudScore').innerText = score;
+        
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+        }
+
+        currentQIndex++;
+        if (currentQIndex < 10) {
+          loadQuestion();
+        } else {
+          document.getElementById(`badgeLock${currentLockIndex + 1}`).className = "px-2.5 py-1 rounded-lg text-xs font-bold border border-emerald-400 bg-emerald-500/20 text-emerald-300";
+          document.getElementById(`badgeLock${currentLockIndex + 1}`).innerText = "🔓 قفل " + (currentLockIndex + 1) + " مفتوح";
+
+          currentLockIndex++;
+          currentQIndex = 0;
+
+          if (currentLockIndex < 4) {
+            alert(`🎉 أبدعت يا ${studentName}! تم فك القفل رقم ${currentLockIndex} بنجاح. واصل للوصول للمكافأة!`);
+            loadQuestion();
+          } else {
+            quizView.classList.add('hidden');
+            document.getElementById('viewVictory').classList.remove('hidden');
+            document.getElementById('displayStudentName').innerText = studentName;
+            
+            if (typeof confetti === 'function') {
+              confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+            }
+          }
+        }
+      } else {
+        quizView.classList.add('shake-anim');
+        setTimeout(() => quizView.classList.remove('shake-anim'), 400);
+        alert(`❌ إجابة غير صائبة يا ${studentName}. فكّر جيداً وحاول مجدداً!`);
+      }
+    }
+  </script>
+</body>
+</html>
